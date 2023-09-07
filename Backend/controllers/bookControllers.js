@@ -2,19 +2,32 @@ const mongoose = require('mongoose');
 const Books = require('../models/bookModel');
 
 const getBooks =  async (req, res) => {
-    const books = await Books.find({}).sort({createdAt: -1});
-    res.status(200).json(books);   
+    const pageNumber = req.query.page || 1;
+    const pageSize = 10;
+    Books.paginate({}, { page: pageNumber, limit: pageSize }, (err, result) => {
+      if (err) {
+        return res.status(500).json({ message: 'Error occurred while fetching users.' });
+      }
+      const { docs, total, limit, page, pages } = result;
+      res.json({ books : docs, total, limit, page, pages });
+    });
 }
 
 const getBook = async (req, res) => {
-    res.status(200).json("books"+req.params.id); 
+    const {id} = req.params
+    if(!mongoose.Types.ObjectId.isValid(id)){
+        return res.status(404).json({error: 'id is not a valid'});
+    }
+    const book = await Books.findById(id);
+    if(!book){
+        return res.status(404).json({error: 'No workouts found'});
+        } 
+    res.status(200).json(book); 
 };
 
 const createBook = async (req, res) => {
-    const {bookName,auther,year,price,status} = req.body;
-
+    const {bookName,auther,year,price,status=1} = req.body;
     let emptyFields = []
-
     if(!bookName) {
         emptyFields.push('bookName');
         }
@@ -34,14 +47,12 @@ const createBook = async (req, res) => {
             return res.status(400).json({error: 'Please fill in all fields',emptyFields});
         }
 
-
-
     try {
         const Book = await Books.create({bookName,auther,year,price,status});
-        res.status(200).json(Book);
+        res.status(200).json({'books': Book});
     }
     catch(err) {
-        res.status(400).json({error: err.message});
+        res.status(400).json({error: err.message,emptyFields});
     }
 };
 
@@ -54,7 +65,7 @@ const updateBook = async (req, res) => {
     if(!book){
         return res.status(404).json({error: 'No books found'});
         }
-    res.status(200).json(workout);
+    res.status(200).json(book);
 };
 
 const deleteBook = async (req, res) => {
