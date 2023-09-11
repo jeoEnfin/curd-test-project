@@ -2,11 +2,22 @@ require('dotenv').config();
 const cors = require('cors');
 
 const express = require('express');
-const mongoose = require('mongoose');
+const connectDb = require('./config/dbConnection')
+
+//routes
 const bookRouter = require('./routes/books');
+const userRouter = require('./routes/users');
+const authRouter = require('./routes/auth');
 
 
+//middleware
+const errorHandler = require('./middleware/errorHandler')
+
+
+connectDb();
 const app = express();
+
+const port = process.env.PORT || 5000;
 
 app.use(express.json());
 app.use(cors());
@@ -16,17 +27,15 @@ app.use((req, res, next) => {
     next();
 })
 
-app.use('/api/books',bookRouter)
+app.use('/api/books',bookRouter);
+app.use('/api/users', userRouter);
+app.use('/login', authRouter);
+app.use(errorHandler);
 
-
-mongoose.connect(process.env.MONG_URL)
-.then(() => {
-    app.listen(process.env.PORT, () => {
-        console.log('connected  to db & running on port ' ,process.env.PORT);
-    });
-})
-.catch((err) => {
-    console.log(err);
-    
+app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
 });
+
+
+
 

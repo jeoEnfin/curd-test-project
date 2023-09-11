@@ -68,6 +68,20 @@ const updateBook = async (req, res) => {
     res.status(200).json(book);
 };
 
+const updateStatus = async (req, res) => {
+    const {id} = req.params
+    const newStatus = 0;
+    if(!mongoose.Types.ObjectId.isValid(id)){
+        return res.status(404).json({error: 'id is not a valid'});
+    }
+    const book = await Books.findOneAndUpdate({_id: id},{ $set: { status: newStatus } });
+    if(!book){
+        return res.status(404).json({error: 'No books found'});
+        }
+    res.status(200).json("status updated");
+
+};
+
 const deleteBook = async (req, res) => {
     const {id} = req.params
     if(!mongoose.Types.ObjectId.isValid(id)){
@@ -77,7 +91,10 @@ const deleteBook = async (req, res) => {
     if(!book){
         return res.status(404).json({error: 'No books found'});
         }
-    res.status(200).json(book);
+    res.status(200).json({
+            'title': 'Book has been deleted', 
+            'book': book
+        });
 };
 
 module.exports = {
@@ -85,5 +102,6 @@ module.exports = {
     getBook,
     createBook,
     updateBook,
-    deleteBook
+    deleteBook,
+    updateStatus
 }
