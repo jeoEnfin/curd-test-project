@@ -48,7 +48,7 @@ const createBook = async (req, res) => {
         }
 
     try {
-        const Book = await Books.create({bookName,auther,year,price,status});
+        const Book = await Books.create({bookName,auther,year,price,status,user_id:req.user.id});
         res.status(200).json({'books': Book});
     }
     catch(err) {

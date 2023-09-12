@@ -8,9 +8,11 @@ const {
     deleteBook,
     updateStatus
 } = require('../controllers/bookControllers')
+const validateToken = require('../middleware/validateTokenHandler');
 
 const router = express.Router();
 
+router.use(validateToken)
 router.route('/').get(getBooks)
 router.route('/:id').get(getBook).delete(deleteBook)
 router.route('/statusUpdate/:id').patch(updateStatus)

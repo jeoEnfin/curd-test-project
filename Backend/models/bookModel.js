@@ -3,6 +3,11 @@ const mongoosePaginate = require('mongoose-paginate');
 
 
 const bookSchema = mongoose.Schema({
+    user_id: {
+        type : mongoose.Schema.Types.ObjectId,
+        required : true,
+        ref : 'User'
+    },
     bookName: {
         type: String,
         required: true,
